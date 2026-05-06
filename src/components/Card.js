@@ -1,34 +1,75 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
-function Card({ showEdit }) {   // ✅ receive prop
+function Card({ recipe, showEdit, onEdit, onDelete }) {
+
+  const navigate = useNavigate();
+
   return (
     <div className="col-md-4 mb-4">
 
-      <div className="card shadow-sm h-100 text-center">
+      <div className="card shadow-sm h-100 border-0">
 
-        <div className="card-body">
+        {/* IMAGE */}
+        {recipe.images && (
+          <img
+            src={recipe.images}
+            className="card-img-top"
+            alt="recipe"
+            style={{ height: "200px", objectFit: "cover" }}
+          />
+        )}
 
-          <h5 className="text-primary font-weight-bold">
-            🍲 Chicken Curry
-          </h5>
+        <div className="card-body text-center">
 
-          <p className="text-muted">
-            👁 Views: 120
+          {/* TITLE */}
+          <h5 className="card-title">{recipe.title}</h5>
+
+          {/* OWNER (optional) */}
+          {recipe.owner && (
+            <p className="text-muted mb-1">👤 {recipe.owner}</p>
+          )}
+
+          {/* VIEWS */}
+          <p className="text-muted mb-1">👁️ {recipe.views}</p>
+
+          {/* DATE */}
+          <p className="text-muted mb-2">
+            📅 {recipe.date
+              ? new Date(recipe.date).toLocaleDateString()
+              : "No date"}
           </p>
 
           {/* BUTTONS */}
-          <div className="d-flex justify-content-center">
+          <div className="d-flex justify-content-center gap-2 mt-3">
 
-            {/* ✅ IMPORTANT: condition */}
+            {/* VIEW */}
+            <button
+              className="btn btn-outline-primary btn-sm"
+              onClick={() => navigate(`/recipe/${recipe.id}`)}
+            >
+              View
+            </button>
+
+            {/* EDIT (only for my recipes) */}
             {showEdit && (
-              <button className="btn btn-warning btn-sm mr-2">
-                ✏️ Edit
+              <button
+                className="btn btn-warning btn-sm"
+                onClick={onEdit}
+              >
+                Edit
               </button>
             )}
 
-            <button className="btn btn-outline-primary btn-sm">
-               View Details
-            </button>
+            {/* DELETE */}
+            {showEdit && (
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={onDelete}
+              >
+                Delete
+              </button>
+            )}
 
           </div>
 
@@ -37,7 +78,6 @@ function Card({ showEdit }) {   // ✅ receive prop
       </div>
 
     </div>
-    
   );
 }
 

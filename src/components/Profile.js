@@ -1,114 +1,146 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import image from "../images/defult.jpg";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Profile() {
+
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [recipes, setRecipes] = useState([]);
+  const [showRecipes, setShowRecipes] = useState(false);
+
+  // ✅ Load profile only
+  useEffect(() => {
+    axios.get("http://127.0.0.1:8000/userapi/profile/", {
+      headers: { Authorization: `Token ${token}` }
+    })
+    .then(res => {
+      setName(res.data.name || "");
+      setEmail(res.data.email || "");
+    })
+    .catch(() => console.log("Error loading profile"));
+  }, []);
+
+  // ✅ Load recipes when button clicked
+  function loadRecipes() {
+    axios.get("http://127.0.0.1:8000/userapi/myrecipies/", {
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    })
+    .then(res => {
+      setRecipes(res.data);
+      setShowRecipes(true);
+    })
+    .catch(() => alert("Error loading recipes"));
+  }
+
+  // ✅ Update profile
+  function handleUpdate(e) {
+    e.preventDefault();
+
+    axios.put("http://127.0.0.1:8000/userapi/update/", {
+      name: name,
+      email: email
+    }, {
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    })
+    .then(() => {
+      alert("Profile updated successfully");
+    })
+    .catch(() => {
+      alert("Error updating profile");
+    });
+  }
+
   return (
-    <div className="container mt-5">
+  <div className="container mt-5">
 
-      {/* MAIN HEADING */}
-      <h2 className="text-center font-weight-bold text-primary mb-5">
-         User Profile
-      </h2>
+  <div className="row g-4">
 
-      {/* SUB HEADING */}
-      <h4 className="font-weight-bold mb-3">
-         Profile Editing
-      </h4>
+    {/* LEFT SIDE */}
+    <div className="col-md-4">
+      <div className="card shadow-lg border-0 text-center p-4">
 
-      <div className="row justify-content-center">
-        <div className="col-md-8">
+        <img
+          src={image}
+          className="rounded-circle mx-auto mb-3 border"
+          width="120"
+          height="120"
+          alt="profile"
+        />
 
-          <div className="card shadow p-4">
+        <h5 className="fw-bold">{name || "User"}</h5>
+        <p className="text-muted small">{email}</p>
 
-            {/* PROFILE IMAGE CENTERED */}
-            <div className="text-center mb-4">
-              <img
-                src={image}
-                className="rounded-circle"
-                alt="Profile"
-                width="100"
-                height="100"
-              />
-            </div>
-
-            <form>
-
-              {/* NAME */}
-              <div className="form-group">
-                <div className="d-flex justify-content-between align-items-center">
-                  <label className="mb-1">Full Name</label>
-                  <span style={{ cursor: "pointer" }}>✏️</span>
-                </div>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Enter Name"
-                />
-              </div>
-
-              {/* EMAIL */}
-              <div className="form-group">
-                <div className="d-flex justify-content-between align-items-center">
-                  <label className="mb-1">Email</label>
-                  <span style={{ cursor: "pointer" }}>✏️</span>
-                </div>
-                <input
-                  type="email"
-                  className="form-control"
-                  placeholder="Enter Email"
-                />
-              </div>
-
-              {/* PHONE */}
-              <div className="form-group">
-                <div className="d-flex justify-content-between align-items-center">
-                  <label className="mb-1">Phone</label>
-                  <span style={{ cursor: "pointer" }}>✏️</span>
-                </div>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Enter Phone Number"
-                />
-              </div>
-
-              {/* CHANGE PASSWORD */}
-              <div className="text-right mb-3">
-                <a href="#" className="btn btn-outline-warning btn-sm">
-                  🔑 Change Password
-                </a>
-              </div>
-
-              {/* SAVE BUTTON */}
-              <button type="submit" className="btn btn-success btn-block">
-                 Save Changes
-              </button>
-
-            </form>
-
-          </div>
-        </div>
-      </div>
-
-      {/* MY RECIPES SECTION */}
-      <div className="mt-5">
-
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          
-          <h4 className="font-weight-bold text-success mb-0">
-             My Recipes
-          </h4>
-
-          <a href="#" className="btn btn-primary btn-sm">
-             View Recipes
-          </a>
-
-        </div>
-
+        <button
+          className="btn btn-warning w-100 mt-3"
+          onClick={() => navigate("/pass")}
+        >
+          🔑 Change Password
+        </button>
 
       </div>
-
     </div>
+
+    {/* RIGHT SIDE */}
+    <div className="col-md-8">
+      <div className="card shadow-lg border-0 p-4">
+
+        <h4 className="mb-4 text-primary fw-bold">
+          ✏️ Edit Profile
+        </h4>
+
+        <form onSubmit={handleUpdate}>
+
+          <div className="mb-3">
+            <label className="form-label">Full Name</label>
+            <input
+              type="text"
+              className="form-control"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">Email Address</label>
+            <input
+              type="email"
+              className="form-control"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <button className="btn btn-success px-4">
+            💾 Save Changes
+          </button>
+
+        </form>
+
+        {/* MY RECIPES BUTTON */}
+        <hr className="my-4" />
+
+        <button
+          className="btn btn-primary w-100"
+          onClick={() => navigate("/mylist")}
+        >
+          🍲 View My Recipes
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
   );
 }
 

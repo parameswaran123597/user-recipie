@@ -10,13 +10,15 @@ import SharedRecipie from "./SharedRecipie";
 import RecipeList from "./RecipieList";
 import MyRecipie from "./MyRecipie";
 import RecipeDetail from "./MyRecipeDetail";
+import Home from './Home';
+import EditRecipe from "./EditRecipe";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,   // Layout
     children: [
-      { path: "", element: <RecipeList /> },
+      { path: "", element: <Home /> },
       { path: "register", element: <Register /> },
       { path: "login", element: <Login /> },
       { path: "pass", element: <Password /> },
@@ -25,7 +27,8 @@ const router = createBrowserRouter([
       { path: "share", element: <SharedRecipie /> },
       { path: "list", element: <RecipeList /> },
       { path: "mylist", element: <MyRecipie /> },
-      { path: "myonerec", element: <RecipeDetail /> }
+      { path: "recipe/:id", element: <RecipeDetail /> },
+      { path: "edit/:id", element: <EditRecipe /> },
     ]
   }
 ]);
